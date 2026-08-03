@@ -9,6 +9,7 @@ import { DiscountType, OrderStatus, PaymentMethod } from 'common/types';
 import { MESSAGE } from 'common/constant';
 import path from 'path';
 import { PaymentService } from 'common/services/payment/payment.service';
+import Stripe from 'node_modules/stripe/esm/stripe.esm.node';
 
 @Injectable()
 export class OrderService {
@@ -89,8 +90,43 @@ export class OrderService {
       coupon: createOrderDto.couponDetails,
       totalAmount,
     });
+    
+    this.cartService.clearCart(user)
+
+    
 
     return order;
+  }
+
+
+  async refundOrder(orderId: string, user: any) {
+    const order = await this.orderRepository.getOne({
+      _id: orderId,
+      userId: user._id,
+     paymentMethod: PaymentMethod.CREDIT_CARD
+    })
+
+    if (!order)
+      throw new NotFoundException(MESSAGE.Order.notFound)
+
+    if (!order.intentId)
+      throw new BadRequestException("No Payment Intent Found For This Order")
+
+    const refund = await this.paymentService.createRefundPayment(order.intentId)
+
+    await this.orderRepository.findOneAndUpdate(
+      { _id: orderId }, // filter
+      {
+        status: OrderStatus.CANCELLED,
+        refundId: refund.id,
+        refundAt: new Date(),
+        $unset: {
+          intentId: 1,
+        },
+      },
+    );
+
+    return order
   }
 
   findAll() {
@@ -194,6 +230,18 @@ export class OrderService {
       quantity: 1
     }]
 
+    // let discounts : Stripe.Checkout.SessionCreateParams.Discount[]=[];
+    // if(orderExist.coupon){
+    //   const coupon = await this.paymentService.createCoupon({
+    //     duration:'once',
+    //     currency:'egp',
+    //     percent_off:orderExist.coupon.discountAmount
+
+    //   })
+    //   discounts.push({coupon:coupon.id})
+    // }
+    //manulay but we dont need we already make applyCoupon func in order creation
+
 
     const session = await this.paymentService.checkoutSession({
       customer_email: user.email,
@@ -204,6 +252,23 @@ export class OrderService {
 
     })
 
+    const method = await this.paymentService.createPaymentMethod({
+      type: 'card',
+      card: { token: 'tok_visa' },
+
+    })
+
+    const intent = await this.paymentService.createPaymentInten({
+      amount: orderExist.totalAmount * 100,
+      currency: 'egp',
+      payment_method: method.id,
+      payment_method_types: ['card']
+    })
+
+    orderExist.intentId = intent.id;
+    await orderExist.save();
+
+    this.paymentService.confirmPaymentIntent(intent.id)
     return session;
 
 

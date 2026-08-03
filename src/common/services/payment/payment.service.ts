@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 
@@ -35,4 +35,68 @@ export class PaymentService {
 
         return session;
     }
+
+
+    // async createCoupon(data: Stripe.CouponCreateParams) {
+
+    //     const coupon = await this.stripe.coupons.create(data);
+
+    //     return coupon;
+    // }
+    // manulay but we dont need we already make applyCoupon func in order creation
+
+
+    async createPaymentMethod(data: Stripe.PaymentMethodCreateParams) {
+
+        const method = await this.stripe.paymentMethods.create(data);
+        console.log(method)
+
+        return method;
+    }
+
+    async createPaymentInten(data: Stripe.PaymentIntentCreateParams) {
+
+        const intent = await this.stripe.paymentIntents.create(data);
+
+        console.log(intent)
+
+        return intent;
+    }
+
+
+    async retrivePaymentMethod(id: string) {
+        const intent = await this.stripe.paymentIntents.retrieve(id)
+        return intent
+    }
+
+    async confirmPaymentIntent(id: string) {
+        const intent = await this.retrivePaymentMethod(id)
+
+        if (!intent)
+            throw new BadRequestException("invalid payment intent ID")
+
+        const confirmIntent = await this.stripe.paymentIntents.confirm(intent.id)
+
+        console.log(confirmIntent)
+
+
+        return confirmIntent;
+    }
+
+    async createRefundPayment(id: string) {
+        const intent = await this.retrivePaymentMethod(id)
+
+        if (!intent)
+            throw new BadRequestException("invalid payment intent ID")
+
+        const refund = await this.stripe.refunds.create({
+            payment_intent: id,
+        });
+
+        return refund ;
+
+    }
+
+
+
 }

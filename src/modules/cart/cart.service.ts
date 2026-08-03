@@ -63,7 +63,7 @@ export class CartService {
   }
 
 
-  async clarCart(user: any) {
+  async clearCart(user: any) {
     await this.cartRepository.updateOne({
       userId: user._id
     }, {

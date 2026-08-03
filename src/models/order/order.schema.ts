@@ -83,6 +83,15 @@ export class Order {
 
   @Prop({ type: Number, required: true })
   totalAmount!: number;
+
+  @Prop({type:String})
+  intentId!:string;
+  
+  @Prop({type:String})
+  refundtId!:string;
+  
+  @Prop({type:Date})
+  refundAt!:Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

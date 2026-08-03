@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Headers } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Auth, User } from 'common/decorators';
+import { Auth, Public, PUBLIC, User } from 'common/decorators';
+
+
 
 @Controller('order')
 @Auth(['Admin','Customer'])
@@ -24,6 +26,15 @@ export class OrderController {
     const session = await this.orderService.createCheckoutSession(OrderId,user)
       return {success:true,message:'session Created Successfully',data:session}
   }
+
+
+  
+  @Post('refund/:id')
+  async refundOrder(@Param('id') OrderId: string,@User() user:any){
+    const session = await this.orderService.refundOrder(OrderId,user)
+      return {success:true,message:'session Created Successfully',data:session}
+  }
+
   @Get()
   findAll() {
     return this.orderService.findAll();
@@ -43,4 +54,7 @@ export class OrderController {
   remove(@Param('id') id: string) {
     return this.orderService.remove(+id);
   }
+
+
 }
+
