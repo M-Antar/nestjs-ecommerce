@@ -1,0 +1,39 @@
+import { Injectable } from '@nestjs/common';
+import { CreateCategoryDto } from '../dto/create-category.dto';
+import { Category } from '../entities/category.entity';
+import slugify from 'slugify';
+import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { AbstractRepository } from '@models/abstract.repository';
+
+@Injectable()
+export class CategoryFactoryService extends AbstractRepository<Category> {
+  createCategory(createCategoryDto: CreateCategoryDto, user: any) {
+    const category = new Category();
+    category.name = createCategoryDto.name;
+    category.slug = slugify(createCategoryDto.name, {
+      replacement: '-',
+      lower: true,
+      trim: true,
+    }); // '-'
+    category.createdBy = user._id;
+    category.updatedBy = user._id;
+
+    category.logo = createCategoryDto.logo;
+
+    return category;
+  }
+
+    updateCategory(id:string,updateCategoryDto: UpdateCategoryDto,user:any) {
+    const category = new Category();
+    category.name = updateCategoryDto.name as string
+    category.slug = slugify(updateCategoryDto.name as string, {
+      replacement: '-',
+      lower: true,
+      trim: true,
+    }); // '-'
+    category.logo = updateCategoryDto.logo as object;
+    category.updatedBy=user._id;
+    
+    return category;
+  }
+}
