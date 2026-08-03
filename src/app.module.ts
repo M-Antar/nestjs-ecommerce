@@ -16,6 +16,7 @@ import { CommonModules } from '@shared/modules';
 import { CouponModule } from './modules/coupon/coupon.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
+import { GatewayModule } from './gateway/gateway/gateway.module';
 
 
 
@@ -36,7 +37,8 @@ CategoryModule,
 BrandModule,
 CouponModule,
 CartModule,
-OrderModule],
+OrderModule,
+GatewayModule],
   controllers: [AppController],
   providers: [AppService, Product],
 })
