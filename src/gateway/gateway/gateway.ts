@@ -20,15 +20,15 @@ export class RealTimeGateway implements OnGatewayConnection , OnGatewayDisconnec
     constructor(private readonly jwtService:JwtService,private readonly configService:ConfigService,private readonly userReposiroty:UserReposiroty){}
 
 
-    // async handleConnection(client: Socket) {
-    //     // console.log(client.handshake.headers.authorization)
-    //     // console.log(`client connected: ${client.id}`)
-    //     // const token = client.handshake.headers.authorization as string;
-    // }
+    async handleConnection(client: Socket) {
+        // console.log(client.handshake.headers.authorization)
+        // console.log(`client connected: ${client.id}`)
+        // const token = client.handshake.headers.authorization as string;
+    }
 
-    // handleDisconnect(client: Socket) {
-    //     // console.log(`client disconnected: ${client.id}`)
-    // }
+    handleDisconnect(client: Socket) {
+        // console.log(`client disconnected: ${client.id}`)
+    }
 
 @UseGuards(AuthGuard)
 @SubscribeMessage('sayHi')

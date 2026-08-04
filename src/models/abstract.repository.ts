@@ -41,9 +41,8 @@ export class AbstractRepository<T> {
       ...options,
     });
   }
-
-  public async getAll(
-    filter: QueryFilter<T>,
+public async getAll(
+    filter: QueryFilter<T> = {},
     projection?: ProjectionType<T>,
     options?: QueryOptions<T>,
   ) {

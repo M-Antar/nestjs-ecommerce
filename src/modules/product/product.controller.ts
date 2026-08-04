@@ -32,6 +32,14 @@ export class ProductController {
   findAll() {
     return this.productService.findAll();
   }
+  
+  @Get('cach')
+  @Public()
+  async tryToGetAllProducts(){
+    const products=  await this.productService.listAllProducts()
+      return {success:true,message:MESSAGE.Product.created,data:products}
+
+  }
 
   @Public()
   @Get(':id')
@@ -52,4 +60,5 @@ export class ProductController {
   remove(@Param('id') id: string) {
     return this.productService.remove(+id);
   }
+
 }

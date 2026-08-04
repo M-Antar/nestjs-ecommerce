@@ -17,6 +17,7 @@ import { CouponModule } from './modules/coupon/coupon.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
 import { GatewayModule } from './gateway/gateway/gateway.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 
 
@@ -28,6 +29,7 @@ import { GatewayModule } from './gateway/gateway/gateway.module';
       uri:ConfigService.get('db').url
     })
   })  ,
+  CacheModule.register({isGlobal:true}),
   CommonModules,
   AuthModule,
 ProductModule,

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -10,13 +10,16 @@ import { CategoryService } from 'modules/category/category.service';
 import { MESSAGE } from 'common/constant';
 import { BrandService } from 'modules/brand/brand.service';
 import { Types } from 'mongoose';
+import { CACHE_MANAGER,Cache } from '@nestjs/cache-manager';
+
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly productRepository:ProductRepository,
     private readonly categoryService : CategoryService,
-    private readonly brandService : BrandService
+    private readonly brandService : BrandService,
+    @Inject(CACHE_MANAGER) private readonly cachManager:Cache
 
   ){}
 
@@ -76,4 +79,23 @@ export class ProductService {
   remove(id: number) {
     return `This action removes a #${id} product`;
   }
+
+async listAllProducts() {
+    // Used consistent cacheManager name
+    const products = await this.cachManager.get('products');
+
+    if (!products) {
+      console.log('Products from db');
+
+      const dbProducts = await this.productRepository.getAll();
+      await this.cachManager.set('products', dbProducts,60_000);
+
+      return dbProducts;
+      
+    }
+
+    console.log('Products from cache');
+    return products;
+  }
+  
 }
